@@ -7,6 +7,6 @@ using GraphDataFrameBridge
 
 include("org_depth.jl")
 
-export org_depth!, org_depth
+export org_depth!, org_depth, recursive_managers
 
 end

@@ -18,9 +18,14 @@ graphplot(g1, arrow_show=true, nlabels = string.(vertices(g1)))
 
 d1 = dijkstra_shortest_paths(g1, 1)
 d1.dists
+
+using OrganizationalGraphs
+org_depth(org1)
 ```
 
 This gives the organizational depth of all employees.
 
 ![Simple Org](img/g1.png)
 
+
+# A more complex example
