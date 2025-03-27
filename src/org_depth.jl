@@ -21,7 +21,7 @@ function org_depth!(df; employee = :employee, manager = :manager, top = missing)
                           )
     transform!(org_paths, :path_index => ByRow(y -> map(x->g1.vprops[x][:name], y)) => :path_name)
     leftjoin!(df, org_paths, on = :index)        
-    df
+    transform!(df, :org_depth => ByRow(Int) => :org_depth)
 end
 
 function org_depth(df; employee = :employee, manager = :manager, top = missing) # Rename to `reporting_lines`?
@@ -33,7 +33,28 @@ end
 """
         get recursive managers after calling `org_depth`
 """
-function recursive_managers(df; maxlevel = 5)
+function recursive_managers_tall(df; maxlevel = 5)
+    if !in("path_name", names(df))
+        @warn "Calling org_depth to get reporting lines"
+        df1 = org_depth(df)
+    else
+        df1 = copy(df)
+    end
+    maxlev1 = min(maxlevel, maximum(df1.org_depth)) |> Int
+    res = DataFrame[]
+    for row in eachrow(df1)
+        lev = row.org_depth+1
+        push!(res, hcat(repeat(DataFrame(row), lev), DataFrame(Level = string.("L",1:lev), LevelManager = row.path_name)))
+    end
+    reduce(vcat, res)
+end
+
+function recursive_managers_wide(df; maxlevel = 5)
+    df1 = recursive_managers_tall(df; maxlevel)
+    unstack(df1, :Level, :LevelManager)
+end
+
+function recursive_managers1(df; maxlevel = 5)
     if !in("path_name", names(df))
         @warn "Calling org_depth to get reporting lines"
         df1 = org_depth(df)

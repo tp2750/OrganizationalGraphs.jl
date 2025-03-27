@@ -1,5 +1,5 @@
-using OrganizationalGraphs
 using Test
+using OrganizationalGraphs
 using DataFrames
 
 org1 = DataFrame("employee" => ["A", "B", "C", "D", "T"], "manager" => ["T", "A", "B", "B","T"])
