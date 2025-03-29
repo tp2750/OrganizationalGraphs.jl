@@ -15,13 +15,20 @@ function org_depth!(df; employee = :employee, manager = :manager, top = missing)
     top_id = df[top_idx, :index]
     d1 = dijkstra_shortest_paths(g1, top_id)
     org_depth = DataFrame(index = 1:nv(g1), org_depth = d1.dists)
+    @show size(org_depth)
+    org_depth = subset(org_depth, :org_depth => ByRow(isfinite))
+    @show size(org_depth)
     leftjoin!(df, org_depth, on = :index)
     org_paths = DataFrame("index" => 1:nv(g1),
                           "path_index" => map(x->Graphs.path_from_parents(x,d1.parents), 1:nv(g1)),
                           )
     transform!(org_paths, :path_index => ByRow(y -> map(x->g1.vprops[x][:name], y)) => :path_name)
     leftjoin!(df, org_paths, on = :index)        
+    @show size(df)
+    dropmissing!(df)
+    @show size(df)
     transform!(df, :org_depth => ByRow(Int) => :org_depth)
+    df
 end
 
 function org_depth(df; employee = :employee, manager = :manager, top = missing) # Rename to `reporting_lines`?
