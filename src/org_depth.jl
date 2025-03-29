@@ -43,8 +43,8 @@ function recursive_managers_tall(df; maxlevel = 5)
     maxlev1 = min(maxlevel, maximum(df1.org_depth)) |> Int
     res = DataFrame[]
     for row in eachrow(df1)
-        lev = row.org_depth+1
-        push!(res, hcat(repeat(DataFrame(row), lev), DataFrame(Level = string.("L",1:lev), LevelManager = row.path_name)))
+        lev = max(row.org_depth,1)
+        push!(res, hcat(repeat(DataFrame(row), lev), DataFrame(Level = string.("L",1:lev), LevelManager = row.path_name[1:lev])))
     end
     reduce(vcat, res)
 end
